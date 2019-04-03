@@ -163,6 +163,30 @@ namespace Roslyn.Tools
                                 throw new InvalidDataException($"'{packagePath}' has invalid nuspec: missing 'version' element");
                             }
 
+                            var packageTypesElement = metadata.Element(XName.Get("packageTypes", nuspecXmlns));
+                            if (packageTypesElement != null)
+                            {
+                                foreach (var packageType in packageTypesElement.Elements(XName.Get("packageType", nuspecXmlns)) ?? Array.Empty<XElement>())
+                                {
+                                    var name = packageType.Attribute("name");
+
+                                    if (name != null && name.Value != null && string.Equals(name.Value, "DotnetTool", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        throw new InvalidDataException($"Package '{packagePath}' has PackageType 'DotnetTool'. Repack 'DotnetTool' is not supported.");
+                                    }
+                                }
+                            }
+
+                            if (packageVersionStr == null)
+                            {
+                                throw new InvalidDataException($"'{packagePath}' has invalid nuspec: missing 'version' element");
+                            }
+
+                            if (packageVersionStr == null)
+                            {
+                                throw new InvalidDataException($"'{packagePath}' has invalid nuspec: missing 'version' element");
+                            }
+
                             if (!SemanticVersion.TryParse(packageVersionStr, out packageVersion))
                             {
                                 throw new InvalidDataException($"'{packagePath}' has invalid nuspec: invalid 'version' value '{packageVersionStr}'");

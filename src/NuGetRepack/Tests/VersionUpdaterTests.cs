@@ -151,5 +151,19 @@ namespace Roslyn.Tools.Tests
 
             Directory.Delete(dir, recursive: true);
         }
+
+        [Fact]
+        public void TestDotnetToolValidation()
+        {
+            var dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(dir);
+
+            string dotnet_tool;
+            File.WriteAllBytes(dotnet_tool = Path.Combine(dir, TestResources.MiscPackages.NameDotnetTool), TestResources.MiscPackages.DotnetTool);
+
+            var e1 = Assert.Throws<InvalidDataException>(() => NuGetVersionUpdater.Run(new[] { dotnet_tool }, outDirectoryOpt: null, VersionTranslation.Release, exactVersions: false));
+            AssertEx.AreEqual($"Package '{dotnet_tool}' has PackageType 'DotnetTool'. Repack 'DotnetTool' is not supported.", e1.Message);
+            Directory.Delete(dir, recursive: true);
+        }
     }
 }
